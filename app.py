@@ -266,7 +266,7 @@ def makeWebhookResult(req):
         zipcode = parameters.get("zipcode")
         ordernum = parameters.get("order-number")
         
-        rq = requests.post("https://www.shopjustice.com/justice/homepage/includes/order-response-html.jsp", data={'orderNum': ordernum, 'billingZip': zipcode, 'Action': 'fetchODDetails'})
+        rq = requests.post("https://www.lanebryant.com/lanebryant/homepage/includes/order-response-html.jsp", data={'orderNum': ordernum, 'billingZip': zipcode, 'Action': 'fetchODDetails'})
         #print rq.text
         order_json = json.loads(rq.text[rq.text.find("cart-json")+35:rq.text.find("<", rq.text.find("cart-json"))])
         print (str(order_json))
@@ -323,10 +323,13 @@ def makeWebhookResult(req):
             ordernum = 'OJTW027567667'
         elif zipcode == '19148':
             ordernum = 'OJTW027678055'
+        elif zipcode == '27217'
+            ordernum = 'OLBW009566347'
         else:
             ordernum = 'OJTW022967052'
+            zipcode = '20166'
             
-        rq = requests.post("https://www.shopjustice.com/justice/homepage/includes/order-response-html.jsp", data={'orderNum': ordernum, 'billingZip': zipcode, 'Action': 'fetchODDetails'})
+        rq = requests.post("https://www.lanebryant.com/lanebryant/homepage/includes/order-response-html.jsp", data={'orderNum': ordernum, 'billingZip': zipcode, 'Action': 'fetchODDetails'})
         #print rq.text
         matchObj = rq.text[rq.text.find("order-status-label")+20:rq.text.find("<", rq.text.find("order-status-label"))]
         matchDate = rq.text[rq.text.find("mar-date")+10:rq.text.find("<", rq.text.find("mar-date"))]
