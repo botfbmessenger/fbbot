@@ -323,7 +323,7 @@ def makeWebhookResult(req):
             ordernum = 'OJTW027567667'
         elif zipcode == '19148':
             ordernum = 'OJTW027678055'
-        elif zipcode == '27217'
+        elif zipcode == '27217':
             ordernum = 'OLBW009566347'
         else:
             ordernum = 'OJTW022967052'
