@@ -334,7 +334,10 @@ def makeWebhookResult(req):
             zipcode = '20166'
             
         rq = requests.post("https://www.lanebryant.com/lanebryant/homepage/includes/order-response-html.jsp", data={'orderNum': ordernum, 'billingZip': zipcode, 'Action': 'fetchODDetails'})
-        #print rq.text
+        
+        jdata = json.loads(rq.text[rq.text.find("cart-json")+35:rq.text.find("<", rq.text.find("cart-json"))])
+        
+        #Order Status Details
         matchObj = rq.text[rq.text.find("order-status-label")+20:rq.text.find("<", rq.text.find("order-status-label"))]
         matchDate = rq.text[rq.text.find("mar-date")+10:rq.text.find("<", rq.text.find("mar-date"))]
         matchDate = matchDate.strip().replace('\n', '').replace(' ','')
@@ -347,9 +350,9 @@ def makeWebhookResult(req):
             status = matchObj
             date = DateTime.strptime(matchDate, '%m/%d/%Y') + TimeDelta(days=5)
         else:
-            status = "I couldn't find that order. Either the order number or the zipcode is not correct."
+            status = "I couldn't find that order. Either the number or the zipcode is not correct."
             print ("No match!!")
-        
+            
         if date >= present:
             if status == 'Shipped':
                 speech = "Order status is " + status + ". You should receive the package by " + date.strftime('%m/%d/%Y') + "."
@@ -372,6 +375,94 @@ def makeWebhookResult(req):
                 speech = "Order status is " + status + ". You should have received the package by " + date.strftime('%m/%d/%Y') + "."
             else:
                 speech = status
+        #END Order Status Details
+        
+        #Order Item Variables
+        elements = ""
+        count = len(jdata["data"]["cartItems"])
+        for mc in jdata["data"]["cartItems"]:
+            element = "{\"title\": " + "\"" + str(mc["name"]) + "\"," + "\"quantity\": " + str(mc["quantity"]) + "," + "\"price\": " + str(mc["totalPrice"]) + "," + "\"currency\":\"USD\"," + "\"image_url\": \"https:" + str(mc["imageURL"]) + "\"}"
+            if(count != 1):
+                element = element + ","
+                count = count - 1
+            elements = elements + element
+        json_elements = json.loads("["+elements+"]")
+        
+        #Order Summary Variables
+        subtotal = jdata["data"]["cartSummary"]["totalPreSvng"]
+        shipping_cost = jdata["data"]["cartSummary"]["estmShipping"]
+        if shipping_cost == 'FREE':
+            shipping_cost = '0.0'
+        total_tax = jdata["data"]["cartSummary"]["payment"]["taxesAndDuties"]
+        total_cost = jdata["data"]["cartSummary"]["totalPostSvng"]
+        
+        #Order Adjustment Variables
+        adj_elements = ""
+        adj_zero = 0
+        adj_count = len(jdata["data"]["cartSummary"]["savings"])
+        if adj_count != 0:
+            for adj in jdata["data"]["cartSummary"]["savings"]:
+                if adj.get('value'):
+                    adj_element = "{\"name\": " + "\"" + str(adj["message"]).replace("[","").replace("]","") + "\"," + "\"amount\": " + str(int(float(adj["value"]))) + "}"
+                else:
+                    adj_element = "{\"name\": " + "\"" + str(adj["message"]).replace("[","").replace("]","") + "\"," + "\"amount\": " + str(adj_zero) + "}"
+                if(adj_count != 1):
+                    adj_element = adj_element + ","
+                    adj_count = adj_count - 1
+                adj_elements = adj_elements + adj_element
+            print (adj_elements)
+            adj_json = json.loads("["+adj_elements+"]")
+        else:
+            adj_json = json.loads("[]")
+        
+        if ((req.get("originalRequest") is not None) and (req.get("originalRequest").get("source") == "facebook")):
+            return {
+                    "speech": "",
+                    "messages": [{
+                        "type": 0,
+                        "platform": "facebook",
+                        "speech": speech
+                    },
+                    {
+                        "type": 4,
+                        "platform": "facebook",
+                        "payload": {
+                            "facebook": {
+                                "attachment": {
+                                    "type": "template",
+                                    "payload": {
+                                        "template_type": "receipt",
+                                        "recipient_name": "Harshit Sanghvi",
+                                        "order_number": ordernum,
+                                        "currency": "USD",
+                                        "payment_method": "Visa 2345",
+                                        "timestamp": "1428444852",
+                                        "address": {
+                                            "street_1": "1 Hacker Way",
+                                            "street_2": "",
+                                            "city": "Menlo Park",
+                                            "postal_code": "94025",
+                                            "state": "CA",
+                                            "country": "US"
+                                        },
+                                        "summary": {
+                                            "subtotal": subtotal,
+                                            "shipping_cost": shipping_cost,
+                                            "total_tax": total_tax,
+                                            "total_cost": total_cost
+                                        },
+                                        "adjustments": adj_json,
+                                        "elements": json_elements
+                                    }
+                                }
+                            }
+                        }
+                    }]
+                }
+        else:
+            rq = requests.get("http://www.lanebryant.com/lanebryant/search?Ntt=" + color + " " + cat + "&format=JSON")
+            jdata = json.loads(rq.text)
+            speech = "I found " + str(jdata["contents"][0]["MainContent"][0]["MainContent"][0]["contents"][0]["totalNumRecs"]) + " " + color + " " + cat + " products."         
     else:
         return{}
     print("Response:")
