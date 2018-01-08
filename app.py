@@ -93,6 +93,7 @@ def makeWebhookResult(req):
         parameters = result.get("parameters")
         zipcode = parameters.get("zipcode")
         ordernum = parameters.get("order-number")
+        ordernum = ordernum.upper()
         
         rq = requests.post("https://www.lanebryant.com/lanebryant/homepage/includes/order-response-html.jsp", data={'orderNum': ordernum, 'billingZip': zipcode, 'Action': 'fetchODDetails'})
         
@@ -265,6 +266,7 @@ def makeWebhookResult(req):
         parameters = result.get("parameters")
         zipcode = parameters.get("zipcode")
         ordernum = parameters.get("order-number")
+        ordernum = ordernum.upper()
         
         rq = requests.post("https://www.lanebryant.com/lanebryant/homepage/includes/order-response-html.jsp", data={'orderNum': ordernum, 'billingZip': zipcode, 'Action': 'fetchODDetails'})
         #print rq.text
