@@ -330,8 +330,8 @@ def makeWebhookResult(req):
         elif zipcode == '43081':
             ordernum = 'OLBW022443272'
         else:
-            ordernum = 'OJTW022967052'
-            zipcode = '20166'
+            ordernum = 'OLBW022443272'
+            zipcode = '43081'
             
         rq = requests.post("https://www.lanebryant.com/lanebryant/homepage/includes/order-response-html.jsp", data={'orderNum': ordernum, 'billingZip': zipcode, 'Action': 'fetchODDetails'})
         
