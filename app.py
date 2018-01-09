@@ -117,24 +117,24 @@ def makeWebhookResult(req):
             
         if date >= present:
             if status == 'Shipped':
-                speech = "Order status is " + status + ". You should receive the package by " + date.strftime('%m/%d/%Y') + "."
+                speech = "The status of your order is " + status + ". You should receive the package by " + date.strftime('%m/%d/%Y') + "."
             elif status == 'Partially Shipped':
-                speech = "Order status is " + status + ". You should receive the package by " + date.strftime('%m/%d/%Y') + "."
+                speech = "The status of your order is " + status + ". You should receive the package by " + date.strftime('%m/%d/%Y') + "."
             elif status == 'Canceled':
-                speech = "Order status is " + status + ". Please reach out to the customer support for more details about the order."
+                speech = "The status of your order is " + status + ". Please reach out to the customer support for more details about the order."
             elif status == 'Processing':
-                speech = "Order status is " + status + ". You should receive the package by " + date.strftime('%m/%d/%Y') + "."
+                speech = "The status of your order is " + status + ". You should receive the package by " + date.strftime('%m/%d/%Y') + "."
             else:
                 speech = status
         else:
             if status == 'Shipped':
-                speech = "Order status is " + status + ". You should have received the package by " + date.strftime('%m/%d/%Y') + "."
+                speech = "The status of your order is " + status + ". You should have received the package by " + date.strftime('%m/%d/%Y') + "."
             elif status == 'Partially Shipped':
-                speech = "Order status is " + status + ". You should have received the package by " + date.strftime('%m/%d/%Y') + "."
+                speech = "The status of your order is " + status + ". You should have received the package by " + date.strftime('%m/%d/%Y') + "."
             elif status == 'Canceled':
-                speech = "Order status is " + status + ". Please reach out to the customer support for more details about the order."
+                speech = "The status of your order is " + status + ". Please reach out to the customer support for more details about the order."
             elif status == 'Processing':
-                speech = "Order status is " + status + ". You should have received the package by " + date.strftime('%m/%d/%Y') + "."
+                speech = "The status of your order is " + status + ". You should have received the package by " + date.strftime('%m/%d/%Y') + "."
             else:
                 speech = status
         #END Order Status Details
@@ -285,32 +285,50 @@ def makeWebhookResult(req):
             print ("matchDate : ", matchDate)
             status = matchObj
             date = DateTime.strptime(matchDate, '%m/%d/%Y') + TimeDelta(days=5)
+            orderFound = "I found your order. Here is the order status."
         else:
-            status = "Sorry! I could not find that order. Please check the order number or zipcode and try again."
+            status = "Please check the order number or zipcode and try again."
+            orderFound = "Sorry! I could not find that order."
             print ("No match!!")
             
         if date >= present:
             if status == 'Shipped':
-                speech = "Order status is " + status + ". You should receive the package by " + date.strftime('%m/%d/%Y') + "."
+                speech = "The status of your order is " + status + ". You should receive the package by " + date.strftime('%m/%d/%Y') + "."
             elif status == 'Partially Shipped':
-                speech = "Order status is " + status + ". You should receive the package by " + date.strftime('%m/%d/%Y') + "."
+                speech = "The status of your order is " + status + ". You should receive the package by " + date.strftime('%m/%d/%Y') + "."
             elif status == 'Canceled':
-                speech = "Order status is " + status + ". Please reach out to the customer support for more details about the order."
+                speech = "The status of your order is " + status + ". Please reach out to the customer support for more details about the order."
             elif status == 'Processing':
-                speech = "Order status is " + status + ". You should receive the package by " + date.strftime('%m/%d/%Y') + "."
+                speech = "The status of your order is " + status + ". You should receive the package by " + date.strftime('%m/%d/%Y') + "."
             else:
                 speech = status
         else:
             if status == 'Shipped':
-                speech = "Order status is " + status + ". You should have received the package by " + date.strftime('%m/%d/%Y') + "."
+                speech = "The status of your order is " + status + ". You should have received the package by " + date.strftime('%m/%d/%Y') + "."
             elif status == 'Partially Shipped':
-                speech = "Order status is " + status + ". You should have received the package by " + date.strftime('%m/%d/%Y') + "."
+                speech = "The status of your order is " + status + ". You should have received the package by " + date.strftime('%m/%d/%Y') + "."
             elif status == 'Canceled':
-                speech = "Order status is " + status + ". Please reach out to the customer support for more details about the order."
+                speech = "The status of your order is " + status + ". Please reach out to the customer support for more details about the order."
             elif status == 'Processing':
-                speech = "Order status is " + status + ". You should have received the package by " + date.strftime('%m/%d/%Y') + "."
+                speech = "The status of your order is " + status + ". You should have received the package by " + date.strftime('%m/%d/%Y') + "."
             else:
                 speech = status
+        
+       if ((req.get("originalRequest") is not None) and (req.get("originalRequest").get("source") == "facebook")):
+            return {
+                    "speech": "",
+                    "messages": [{
+                        "type": 0,
+                        "platform": "facebook",
+                        "speech": orderFound
+                    },
+                    {
+                        "type": 0,
+                        "platform": "facebook",
+                        "speech": speech
+                    }]
+                } 
+        
     elif req.get("result").get("action") == "Order_Status_no":
         result = req.get("result")
         parameters = result.get("parameters")
@@ -349,30 +367,32 @@ def makeWebhookResult(req):
             print ("matchDate : ", matchDate)
             status = matchObj
             date = DateTime.strptime(matchDate, '%m/%d/%Y') + TimeDelta(days=5)
+            orderFound = "I found your order. Here is the order status."
         else:
-            status = "Sorry! I could not find that order. Please check the email, order time or zipcode and try again."
+            status = "Please check the email, order time or zipcode and try again."
+            orderFound = "Sorry! I could not find your order."
             print ("No match!!")
             
         if date >= present:
             if status == 'Shipped':
-                speech = "Order status is " + status + ". You should receive the package by " + date.strftime('%m/%d/%Y') + "."
+                speech = "The status of your order is " + status + ". You should receive the package by " + date.strftime('%m/%d/%Y') + "."
             elif status == 'Partially Shipped':
-                speech = "Order status is " + status + ". You should receive the package by " + date.strftime('%m/%d/%Y') + "."
+                speech = "The status of your order is " + status + ". You should receive the package by " + date.strftime('%m/%d/%Y') + "."
             elif status == 'Canceled':
-                speech = "Order status is " + status + ". Please reach out to the customer support for more details about the order."
+                speech = "The status of your order is " + status + ". Please reach out to the customer support for more details about the order."
             elif status == 'Processing':
-                speech = "Order status is " + status + ". You should receive the package by " + date.strftime('%m/%d/%Y') + "."
+                speech = "The status of your order is " + status + ". You should receive the package by " + date.strftime('%m/%d/%Y') + "."
             else:
                 speech = status
         else:
             if status == 'Shipped':
-                speech = "Order status is " + status + ". You should have received the package by " + date.strftime('%m/%d/%Y') + "."
+                speech = "The status of your order is " + status + ". You should have received the package by " + date.strftime('%m/%d/%Y') + "."
             elif status == 'Partially Shipped':
-                speech = "Order status is " + status + ". You should have received the package by " + date.strftime('%m/%d/%Y') + "."
+                speech = "The status of your order is " + status + ". You should have received the package by " + date.strftime('%m/%d/%Y') + "."
             elif status == 'Canceled':
-                speech = "Order status is " + status + ". Please reach out to the customer support for more details about the order."
+                speech = "The status of your order is " + status + ". Please reach out to the customer support for more details about the order."
             elif status == 'Processing':
-                speech = "Order status is " + status + ". You should have received the package by " + date.strftime('%m/%d/%Y') + "."
+                speech = "The status of your order is " + status + ". You should have received the package by " + date.strftime('%m/%d/%Y') + "."
             else:
                 speech = status
         #END Order Status Details
@@ -421,7 +441,17 @@ def makeWebhookResult(req):
                     "messages": [{
                         "type": 0,
                         "platform": "facebook",
+                        "speech": orderFound
+                    },
+                    {
+                        "type": 0,
+                        "platform": "facebook",
                         "speech": speech
+                    },
+                    {
+                        "type": 0,
+                        "platform": "facebook",
+                        "speech": "Order details are as follows:"
                     },
                     {
                         "type": 4,
