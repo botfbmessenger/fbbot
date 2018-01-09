@@ -112,7 +112,7 @@ def makeWebhookResult(req):
             status = matchObj
             date = DateTime.strptime(matchDate, '%m/%d/%Y') + TimeDelta(days=5)
         else:
-            status = "I couldn't find that order. Either the number or the zipcode is not correct."
+            status = "Sorry! I could not find that order. Please check the order number or zipcode and try again."
             print ("No match!!")
             
         if date >= present:
@@ -286,7 +286,7 @@ def makeWebhookResult(req):
             status = matchObj
             date = DateTime.strptime(matchDate, '%m/%d/%Y') + TimeDelta(days=5)
         else:
-            status = "I couldn't find that order. Either the number or the zipcode is not correct."
+            status = "Sorry! I could not find that order. Please check the order number or zipcode and try again."
             print ("No match!!")
             
         if date >= present:
@@ -350,7 +350,7 @@ def makeWebhookResult(req):
             status = matchObj
             date = DateTime.strptime(matchDate, '%m/%d/%Y') + TimeDelta(days=5)
         else:
-            status = "I couldn't find that order. Either the number or the zipcode is not correct."
+            status = "Sorry! I could not find that order. Please check the email, order time or zipcode and try again."
             print ("No match!!")
             
         if date >= present:
