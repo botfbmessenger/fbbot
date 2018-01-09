@@ -194,17 +194,17 @@ def makeWebhookResult(req):
                                     "type": "template",
                                     "payload": {
                                         "template_type": "receipt",
-                                        "recipient_name": "Harshit Sanghvi",
+                                        "recipient_name": "Ascena Retail",
                                         "order_number": ordernum,
                                         "currency": "USD",
                                         "payment_method": "Visa 2345",
                                         "timestamp": "1428444852",
                                         "address": {
-                                            "street_1": "1 Hacker Way",
+                                            "street_1": "200 Heritage Drive",
                                             "street_2": "",
-                                            "city": "Menlo Park",
-                                            "postal_code": "94025",
-                                            "state": "CA",
+                                            "city": "Pataskala",
+                                            "postal_code": "43062",
+                                            "state": "OH",
                                             "country": "US"
                                         },
                                         "summary": {
@@ -432,17 +432,17 @@ def makeWebhookResult(req):
                                     "type": "template",
                                     "payload": {
                                         "template_type": "receipt",
-                                        "recipient_name": "Harshit Sanghvi",
+                                        "recipient_name": "Ascena Retail",
                                         "order_number": ordernum,
                                         "currency": "USD",
                                         "payment_method": "Visa 2345",
                                         "timestamp": "1428444852",
                                         "address": {
-                                            "street_1": "1 Hacker Way",
+                                            "street_1": "200 Heritage Drive",
                                             "street_2": "",
-                                            "city": "Menlo Park",
-                                            "postal_code": "94025",
-                                            "state": "CA",
+                                            "city": "Pataskala",
+                                            "postal_code": "43062",
+                                            "state": "OH",
                                             "country": "US"
                                         },
                                         "summary": {
