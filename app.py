@@ -463,18 +463,11 @@ def makeWebhookResult(req):
                                     "payload": {
                                         "template_type": "receipt",
                                         "recipient_name": "Ascena Retail",
+                                        "merchant_name": ordernum,
                                         "order_number": ordernum,
                                         "currency": "USD",
                                         "payment_method": "Visa 2345",
                                         "timestamp": "1428444852",
-                                        "address": {
-                                            "street_1": "200 Heritage Drive",
-                                            "street_2": "",
-                                            "city": "Pataskala",
-                                            "postal_code": "43062",
-                                            "state": "OH",
-                                            "country": "US"
-                                        },
                                         "summary": {
                                             "subtotal": subtotal,
                                             "shipping_cost": shipping_cost,
