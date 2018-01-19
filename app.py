@@ -96,9 +96,7 @@ def makeWebhookResult(req):
         ordernum = re.sub('\W+','', ordernum)
         ordernum = ordernum.upper()
         
-        rq = requests.post("https://www.lanebryant.com/lanebryant/homepage/includes/order-response-html.jsp", data={'orderNum': ordernum, 'billingZip': zipcode, 'Action': 'fetchODDetails'})
-        cartJSON = rq.text[rq.text.find("cart-json")+35:rq.text.find("</script>", rq.text.find("cart-json"))]
-        jdata = json.loads(cartJSON)
+        jdata = getOrderJSON(ordernum, zipcode)
         
         #Order Status Details
         matchObj = rq.text[rq.text.find("order-status-label")+20:rq.text.find("<", rq.text.find("order-status-label"))]
@@ -499,7 +497,12 @@ def makeWebhookResult(req):
         # "contextOut": [],
         "source": "apiai-onlinestore-search"
     }
-        
+
+
+def getOrderJSON(ordernum, zipcode):
+    rq = requests.post("https://www.lanebryant.com/lanebryant/homepage/includes/order-response-html.jsp", data={'orderNum': ordernum, 'billingZip': zipcode, 'Action': 'fetchODDetails'})
+    cartJSON = rq.text[rq.text.find("cart-json")+35:rq.text.find("</script>", rq.text.find("cart-json"))]
+    return json.loads(cartJSON)
 
 if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))
