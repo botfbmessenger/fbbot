@@ -98,7 +98,6 @@ def makeWebhookResult(req):
         
         rq = requests.post("https://www.lanebryant.com/lanebryant/homepage/includes/order-response-html.jsp", data={'orderNum': ordernum, 'billingZip': zipcode, 'Action': 'fetchODDetails'})
         cartJSON = rq.text[rq.text.find("cart-json")+35:rq.text.find("</script>", rq.text.find("cart-json"))]
-        print (cartJSON)
         jdata = json.loads(cartJSON)
         
         #Order Status Details
@@ -273,8 +272,8 @@ def makeWebhookResult(req):
         
         rq = requests.post("https://www.lanebryant.com/lanebryant/homepage/includes/order-response-html.jsp", data={'orderNum': ordernum, 'billingZip': zipcode, 'Action': 'fetchODDetails'})
         #print rq.text
-        order_json = json.loads(rq.text[rq.text.find("cart-json")+35:rq.text.find("<", rq.text.find("cart-json"))])
-        print (str(order_json))
+        cartJSON = rq.text[rq.text.find("cart-json")+35:rq.text.find("</script>", rq.text.find("cart-json"))]
+        order_json = json.loads(cartJSON)
         
         matchObj = rq.text[rq.text.find("order-status-label")+20:rq.text.find("<", rq.text.find("order-status-label"))]
         matchDate = rq.text[rq.text.find("mar-date")+10:rq.text.find("<", rq.text.find("mar-date"))]
@@ -355,8 +354,8 @@ def makeWebhookResult(req):
             zipcode = '43081'
             
         rq = requests.post("https://www.lanebryant.com/lanebryant/homepage/includes/order-response-html.jsp", data={'orderNum': ordernum, 'billingZip': zipcode, 'Action': 'fetchODDetails'})
-        
-        jdata = json.loads(rq.text[rq.text.find("cart-json")+35:rq.text.find("<", rq.text.find("cart-json"))])
+        cartJSON = rq.text[rq.text.find("cart-json")+35:rq.text.find("</script>", rq.text.find("cart-json"))]
+        jdata = json.loads(cartJSON)
         
         #Order Status Details
         matchObj = rq.text[rq.text.find("order-status-label")+20:rq.text.find("<", rq.text.find("order-status-label"))]
