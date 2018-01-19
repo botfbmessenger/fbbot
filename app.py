@@ -98,6 +98,7 @@ def makeWebhookResult(req):
         
         rq = requests.post("https://www.lanebryant.com/lanebryant/homepage/includes/order-response-html.jsp", data={'orderNum': ordernum, 'billingZip': zipcode, 'Action': 'fetchODDetails'})
         cartJSON = rq.text[rq.text.find("cart-json")+35:rq.text.find("<s", rq.text.find("cart-json"))]
+        print (cartJSON)
         jdata = json.loads(cartJSON)
         
         #Order Status Details
