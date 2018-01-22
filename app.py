@@ -34,9 +34,11 @@ def webhook():
 def makeWebhookResult(req):
     if req is None:
         return {}
+    
     result = req.get("result")
-    parameters = req.get("parameters")
-    action = req.get("result").get("action")
+    action = result.get("action")
+    parameters = result.get("parameters")
+    
     if action == "browse.search.products":
         #result = req.get("result")
         #parameters = result.get("parameters")
