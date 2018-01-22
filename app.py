@@ -32,9 +32,14 @@ def webhook():
     return r
 
 def makeWebhookResult(req):
-    if req.get("result").get("action") == "browse.search.products":
-        result = req.get("result")
-        parameters = result.get("parameters")
+    if req is None:
+        return {}
+    result = req.get("result")
+    parameters = req.get("parameters")
+    action = req.get("result").get("action")
+    if action == "browse.search.products":
+        #result = req.get("result")
+        #parameters = result.get("parameters")
         color = parameters.get("color")
         cat = parameters.get("catalog-category")
         if (((color is None) or (color is "")) and (req.get("originalRequest") is not None) and (req.get("originalRequest").get("source") == "facebook")):
@@ -88,9 +93,9 @@ def makeWebhookResult(req):
             }
         else:
             speech = "I found products."
-    elif req.get("result").get("action") == "order_status_receipt":
-        result = req.get("result")
-        parameters = result.get("parameters")
+    elif action == "order_status_receipt":
+        #result = req.get("result")
+        #parameters = result.get("parameters")
         zipcode = parameters.get("zipcode")
         ordernum = parameters.get("order-number")
         ordernum = re.sub('\W+','', ordernum)
