@@ -107,7 +107,6 @@ def makeWebhookResult(req):
         matchDate = rq.text[rq.text.find("mar-date")+10:rq.text.find("<", rq.text.find("mar-date"))]
         matchDate = matchDate.strip().replace('\n', '').replace(' ','')
         date = DateTime.now()
-        present = DateTime.now()
         
         if len(matchObj) < 50:
             print ("matchObj : ", matchObj)
@@ -486,6 +485,7 @@ def getOrderJSON(rq):
     return json.loads(cartJSON)
 
 def getOrderStatusResponse(status, date):
+    present = DateTime.now()
     if date >= present:
         if status == 'Shipped':
             speech = "Your order is " + status + ". You should receive the package by " + date.strftime('%m/%d/%Y') + "."
