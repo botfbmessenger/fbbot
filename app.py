@@ -113,33 +113,11 @@ def makeWebhookResult(req):
             print ("matchObj : ", matchObj)
             print ("matchDate : ", matchDate)
             status = matchObj
-            date = DateTime.strptime(matchDate, '%m/%d/%Y') + TimeDelta(days=5)
+            date = DateTime.strptime(matchDate, '%m/%d/%Y') + TimeDelta(days=7)
         else:
-            status = "Sorry! I could not find that order. Please check the order number or zipcode and try again."
-            print ("No match!!")
-            
-        if date >= present:
-            if status == 'Shipped':
-                speech = "The status of your order is " + status + ". You should receive the package by " + date.strftime('%m/%d/%Y') + "."
-            elif status == 'Partially Shipped':
-                speech = "The status of your order is " + status + ". You should receive the package by " + date.strftime('%m/%d/%Y') + "."
-            elif status == 'Canceled':
-                speech = "The status of your order is " + status + ". Please reach out to the customer support for more details about the order."
-            elif status == 'Processing':
-                speech = "The status of your order is " + status + ". You should receive the package by " + date.strftime('%m/%d/%Y') + "."
-            else:
-                speech = status
-        else:
-            if status == 'Shipped':
-                speech = "The status of your order is " + status + ". You should have received the package by " + date.strftime('%m/%d/%Y') + "."
-            elif status == 'Partially Shipped':
-                speech = "The status of your order is " + status + ". You should have received the package by " + date.strftime('%m/%d/%Y') + "."
-            elif status == 'Canceled':
-                speech = "The status of your order is " + status + ". Please reach out to the customer support for more details about the order."
-            elif status == 'Processing':
-                speech = "The status of your order is " + status + ". You should have received the package by " + date.strftime('%m/%d/%Y') + "."
-            else:
-                speech = status
+            status = "No match!!"
+        
+        speech = getOrderStatusResponse(status, date)
         #END Order Status Details
         
         #Order Item Variables
@@ -506,6 +484,31 @@ def makeWebhookResult(req):
 def getOrderJSON(rq):
     cartJSON = rq.text[rq.text.find("cart-json")+35:rq.text.find("</script>", rq.text.find("cart-json"))]
     return json.loads(cartJSON)
+
+def getOrderStatusResponse(status, date):
+    if date >= present:
+        if status == 'Shipped':
+            speech = "Your order is " + status + ". You should receive the package by " + date.strftime('%m/%d/%Y') + "."
+        elif status == 'Partially Shipped':
+            speech = "Your order is " + status + ". You should receive the package by " + date.strftime('%m/%d/%Y') + "."
+        elif status == 'Canceled':
+            speech = "Your order is " + status + ". Please reach out to the customer support for more details about the order."
+        elif status == 'Processing':
+            speech = "Your order is " + status + ". You should receive the package by " + date.strftime('%m/%d/%Y') + "."
+        else:
+            speech = "Sorry! I could not find that order. Please check the order number or zipcode and try again."
+    else:
+        if status == 'Shipped':
+            speech = "Your order has been " + status + ". You should have received the package by " + date.strftime('%m/%d/%Y') + "."
+        elif status == 'Partially Shipped':
+            speech = "Your order has been " + status + ". You should have received the package by " + date.strftime('%m/%d/%Y') + "."
+        elif status == 'Canceled':
+            speech = "Your order has been " + status + ". Please reach out to the customer support for more details about the order."
+        elif status == 'Processing':
+            speech = "Your order has been " + status + ". You should have received the package by " + date.strftime('%m/%d/%Y') + "."
+        else:
+            speech = "Sorry! I could not find that order. Please check the order number or zipcode and try again."    
+    return speech
 
 if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))
