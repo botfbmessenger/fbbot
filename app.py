@@ -56,22 +56,44 @@ def makeWebhookResult(req):
             for result in results:
                 pprint.pprint(result)
                 
-            return {
+            return{
                 "data": {
                     "facebook": {
-                        "text": "Pick a color:",
-                        "quick_replies": [
-                            {
-                                "content_type": "text",
-                                "title": "Red",
-                                "payload": "red"
-                            },
-                            {
-                                "content_type": "text",
-                                "title": "Green",
-                                "payload": "green"
+                        "attachment": {
+                            "type": "template",
+                            "payload": {
+                                "template_type": "generic",
+                                "elements":
+                                [
+                                    {
+                                        "title":"WelcometoPeter'\''sHats",
+                                        "image_url":"https://petersfancybrownhats.com/company_image.png",
+                                        "subtitle":"We'\''vegottherighthatforeveryone.",
+                                        "default_action":
+                                        {
+                                            "type":"web_url",
+                                            "url":"https://peterssendreceiveapp.ngrok.io/view?item=103",
+                                            "messenger_extensions":true,
+                                            "webview_height_ratio":"tall",
+                                            "fallback_url":"https://peterssendreceiveapp.ngrok.io/"
+                                        },
+                                        "buttons":
+                                        [
+                                            {
+                                                "type":"web_url",
+                                                "url":"https://petersfancybrownhats.com",
+                                                "title":"ViewWebsite"
+                                            },
+                                            {
+                                                "type":"postback",
+                                                "title":"StartChatting",
+                                                "payload":"DEVELOPER_DEFINED_PAYLOAD"
+                                            }
+                                        ]
+                                    }
+                                ]
                             }
-                        ]
+                        }
                     }
                 }
             }
