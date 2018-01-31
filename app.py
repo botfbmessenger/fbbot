@@ -48,10 +48,10 @@ def makeWebhookResult(req):
         #cat = parameters.get("catalog-category")
         if ((req.get("originalRequest") is not None) and (req.get("originalRequest").get("source") == "facebook")):
             
-            my_api_key = "Google API key"
-            my_cse_id = "Custom Search Engine ID"
+            key = "AIzaSyDRAYL48i0OPQhUBwjzpPPjSMQTnTbMwg4"
+            cseid = "006795601956206961243:iz92js6a8su"
             
-            results = google_search('www.lanebryant.com', my_api_key, my_cse_id, num=10)
+            results = google_search('www.lanebryant.com', key, cseid, num=10)
             
             for result in results:
                 pprint.pprint(result)
@@ -528,9 +528,9 @@ def getOrderStatusResponse(status, date):
             speech = "Sorry! I could not find that order. Please check the order number or zipcode and try again."    
     return speech
 
-def google_search(search_term, api_key, cse_id, **kwargs):
-    service = build("customsearch", "v1", developerKey=api_key)
-    res = service.cse().list(q=search_term, cx=cse_id, **kwargs).execute()
+def google_search(search_term, key, cseid, **kwargs):
+    service = build("customsearch", "v1", developerKey=key)
+    res = service.cse().list(q=search_term, cx=cseid, **kwargs).execute()
     print("Search Result: ", res)
     return res['items']
 
