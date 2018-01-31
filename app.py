@@ -11,6 +11,7 @@ from flask import Flask
 from flask import request
 from flask import make_response
 from datetime import datetime as DateTime, timedelta as TimeDelta
+from googleapiclient.discovery import build, pprint
 
 
 # Flask app should start in global layout
@@ -40,11 +41,16 @@ def makeWebhookResult(req):
     parameters = result.get("parameters")
     
     if action == "browse.search.products":
-        #result = req.get("result")
-        #parameters = result.get("parameters")
-        color = parameters.get("color")
-        cat = parameters.get("catalog-category")
-        if (((color is None) or (color is "")) and (req.get("originalRequest") is not None) and (req.get("originalRequest").get("source") == "facebook")):
+        result = req.get("result")
+        parameters = result.get("parameters")
+        #color = parameters.get("color")
+        #cat = parameters.get("catalog-category")
+        if ((req.get("originalRequest") is not None) and (req.get("originalRequest").get("source") == "facebook")):
+            
+            results = google_search('www.lanebryant.com', my_api_key, my_cse_id, num=10)
+            for result in results:
+                pprint.pprint(result)
+                
             return {
                 "data": {
                     "facebook": {
@@ -516,6 +522,14 @@ def getOrderStatusResponse(status, date):
         else:
             speech = "Sorry! I could not find that order. Please check the order number or zipcode and try again."    
     return speech
+
+my_api_key = "Google API key"
+my_cse_id = "Custom Search Engine ID"
+
+def google_search(search_term, api_key, cse_id, **kwargs):
+    service = build("customsearch", "v1", developerKey=api_key)
+    res = service.cse().list(q=search_term, cx=cse_id, **kwargs).execute()
+    return res['items']
 
 if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))
