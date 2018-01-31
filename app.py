@@ -50,8 +50,8 @@ def makeWebhookResult(req):
             
             key = "AIzaSyDRAYL48i0OPQhUBwjzpPPjSMQTnTbMwg4"
             cseid = "006795601956206961243:iz92js6a8su"
-            
-            results = google_search('www.lanebryant.com', key, cseid, num=10)
+            keyword = parameters.get("search")
+            results = google_search(keyword, key, cseid, num=10)
             
             for result in results:
                 pprint.pprint(result)
