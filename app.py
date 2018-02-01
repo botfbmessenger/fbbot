@@ -55,47 +55,60 @@ def makeWebhookResult(req):
             
             for result in results:
                 pprint.pprint(result)
-                
-            return{
-                "data": {
-                    "facebook": {
-                        "attachment": {
-                            "type": "template",
-                            "payload": {
-                                "template_type": "generic",
-                                "elements":
-                                [
-                                    {
-                                        "title":"WelcometoPeter'\''sHats",
-                                        "image_url":"https://petersfancybrownhats.com/company_image.png",
-                                        "subtitle":"We'\''vegottherighthatforeveryone.",
-                                        "default_action":
+            
+            speech = "Here are the search results:"
+            
+        return
+        {
+            "speech": "",
+            "messages":
+            [
+                {
+                    "type": 0,
+                    "platform": "facebook",
+                    "speech": speech
+                },
+                {
+                    "type": 4,
+                    "platform": "facebook",
+                    "payload": {
+                        "facebook": {
+                            "attachment": {
+                                "type": "template",
+                                "payload": {
+                                    "template_type": "generic",
+                                    "elements": [
                                         {
-                                            "type":"web_url",
-                                            "url":"https://peterssendreceiveapp.ngrok.io/view?item=103",
-                                            "webview_height_ratio":"tall",
-                                            "fallback_url":"https://peterssendreceiveapp.ngrok.io/"
-                                        },
-                                        "buttons":
-                                        [
-                                            {
+                                            "title":"WelcometoPeter'\''sHats",
+                                            "image_url":"https://petersfancybrownhats.com/company_image.png",
+                                            "subtitle":"We'\''vegottherighthatforeveryone.",
+                                            "default_action": {
                                                 "type":"web_url",
-                                                "url":"https://petersfancybrownhats.com",
-                                                "title":"ViewWebsite"
+                                                "url":"https://peterssendreceiveapp.ngrok.io/view?item=103",
+                                                "webview_height_ratio":"tall",
+                                                "fallback_url":"https://peterssendreceiveapp.ngrok.io/"
                                             },
-                                            {
-                                                "type":"postback",
-                                                "title":"StartChatting",
-                                                "payload":"DEVELOPER_DEFINED_PAYLOAD"
-                                            }
-                                        ]
-                                    }
-                                ]
+                                            "buttons": [
+                                                {
+                                                    "type":"web_url",
+                                                    "url":"https://petersfancybrownhats.com",
+                                                    "title":"ViewWebsite"
+                                                },
+                                                {
+                                                    "type":"postback",
+                                                    "title":"StartChatting",
+                                                    "payload":"DEVELOPER_DEFINED_PAYLOAD"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
                             }
                         }
                     }
                 }
-            }
+            ]
+        }
         else:
             rq = requests.get("http://www.lanebryant.com/lanebryant/search?Ntt=" + color + " " + cat + "&format=JSON")
             jdata = json.loads(rq.text)
