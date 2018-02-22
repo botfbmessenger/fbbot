@@ -48,8 +48,8 @@ def makeWebhookResult(req):
         #cat = parameters.get("catalog-category")
         if ((req.get("originalRequest") is not None) and (req.get("originalRequest").get("source") == "facebook")):
             
-            key = "AIzaSyDRAYL48i0OPQhUBwjzpPPjSMQTnTbMwg4"
-            cseid = "006795601956206961243:iz92js6a8su"
+            key = "<CSE-KEY>"
+            cseid = "<CX-ID>"
             keyword = parameters.get("search")
             results = google_search(keyword, key, cseid, num=10)
             
