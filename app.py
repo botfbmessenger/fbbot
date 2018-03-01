@@ -5,12 +5,14 @@ import urllib
 import json
 import os
 import re
+import pprint
 
 
 from flask import Flask
 from flask import request
 from flask import make_response
 from datetime import datetime as DateTime, timedelta as TimeDelta
+from googleapiclient.discovery import build
 
 
 # Flask app should start in global layout
@@ -32,30 +34,78 @@ def webhook():
     return r
 
 def makeWebhookResult(req):
-    if req.get("result").get("action") == "browse.search.products":
+    if req is None:
+        return {}
+    
+    result = req.get("result")
+    action = result.get("action")
+    parameters = result.get("parameters")
+    
+    if action == "browse.search.products":
         result = req.get("result")
         parameters = result.get("parameters")
-        color = parameters.get("color")
-        cat = parameters.get("catalog-category")
-        if (((color is None) or (color is "")) and (req.get("originalRequest") is not None) and (req.get("originalRequest").get("source") == "facebook")):
+        #color = parameters.get("color")
+        #cat = parameters.get("catalog-category")
+        if ((req.get("originalRequest") is not None) and (req.get("originalRequest").get("source") == "facebook")):
+            
+            key = "<CSE-KEY>"
+            cseid = "<CX-ID>"
+            keyword = parameters.get("search")
+            results = google_search(keyword, key, cseid, num=10)
+            
+            for result in results:
+                pprint.pprint(result)
+            
+            speech = "Here are the search results:"
+            
             return {
-                "data": {
-                    "facebook": {
-                        "text": "Pick a color:",
-                        "quick_replies": [
-                            {
-                                "content_type": "text",
-                                "title": "Red",
-                                "payload": "red"
-                            },
-                            {
-                                "content_type": "text",
-                                "title": "Green",
-                                "payload": "green"
+                "speech": "",
+                "messages": [
+                    {
+                        "type": 0,
+                        "platform": "facebook",
+                        "speech": speech
+                    },
+                    {
+                        "type": 4,
+                        "platform": "facebook",
+                        "payload": {
+                            "facebook": {
+                                "attachment": {
+                                    "type": "template",
+                                    "payload": {
+                                        "template_type": "generic",
+                                        "elements": [
+                                            {
+                                                "title":"WelcometoPeter'\''sHats",
+                                                "image_url":"https://petersfancybrownhats.com/company_image.png",
+                                                "subtitle":"We'\''vegottherighthatforeveryone.",
+                                                "default_action": {
+                                                    "type":"web_url",
+                                                    "url":"https://peterssendreceiveapp.ngrok.io/view?item=103",
+                                                    "webview_height_ratio":"tall",
+                                                    "fallback_url":"https://peterssendreceiveapp.ngrok.io/"
+                                                },
+                                                "buttons": [
+                                                    {
+                                                        "type":"web_url",
+                                                        "url":"https://petersfancybrownhats.com",
+                                                        "title":"ViewWebsite"
+                                                    },
+                                                    {
+                                                        "type":"postback",
+                                                        "title":"StartChatting",
+                                                        "payload":"DEVELOPER_DEFINED_PAYLOAD"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                }
                             }
-                        ]
+                        }
                     }
-                }
+                ]
             }
         else:
             rq = requests.get("http://www.lanebryant.com/lanebryant/search?Ntt=" + color + " " + cat + "&format=JSON")
@@ -88,56 +138,35 @@ def makeWebhookResult(req):
             }
         else:
             speech = "I found products."
-    elif req.get("result").get("action") == "order_status_receipt":
-        result = req.get("result")
-        parameters = result.get("parameters")
+    elif action == "order_status_receipt":
+        #result = req.get("result")
+        #parameters = result.get("parameters")
         zipcode = parameters.get("zipcode")
         ordernum = parameters.get("order-number")
         ordernum = re.sub('\W+','', ordernum)
         ordernum = ordernum.upper()
         
+        #Call ATG Order API
         rq = requests.post("https://www.lanebryant.com/lanebryant/homepage/includes/order-response-html.jsp", data={'orderNum': ordernum, 'billingZip': zipcode, 'Action': 'fetchODDetails'})
-        cartJSON = rq.text[rq.text.find("cart-json")+35:rq.text.find("</script>", rq.text.find("cart-json"))]
-        jdata = json.loads(cartJSON)
+        
+        #Get Order JSON from the response
+        jdata = getOrderJSON(rq)
         
         #Order Status Details
         matchObj = rq.text[rq.text.find("order-status-label")+20:rq.text.find("<", rq.text.find("order-status-label"))]
         matchDate = rq.text[rq.text.find("mar-date")+10:rq.text.find("<", rq.text.find("mar-date"))]
         matchDate = matchDate.strip().replace('\n', '').replace(' ','')
         date = DateTime.now()
-        present = DateTime.now()
         
         if len(matchObj) < 50:
             print ("matchObj : ", matchObj)
             print ("matchDate : ", matchDate)
             status = matchObj
-            date = DateTime.strptime(matchDate, '%m/%d/%Y') + TimeDelta(days=5)
+            date = DateTime.strptime(matchDate, '%m/%d/%Y') + TimeDelta(days=7)
         else:
-            status = "Sorry! I could not find that order. Please check the order number or zipcode and try again."
-            print ("No match!!")
-            
-        if date >= present:
-            if status == 'Shipped':
-                speech = "The status of your order is " + status + ". You should receive the package by " + date.strftime('%m/%d/%Y') + "."
-            elif status == 'Partially Shipped':
-                speech = "The status of your order is " + status + ". You should receive the package by " + date.strftime('%m/%d/%Y') + "."
-            elif status == 'Canceled':
-                speech = "The status of your order is " + status + ". Please reach out to the customer support for more details about the order."
-            elif status == 'Processing':
-                speech = "The status of your order is " + status + ". You should receive the package by " + date.strftime('%m/%d/%Y') + "."
-            else:
-                speech = status
-        else:
-            if status == 'Shipped':
-                speech = "The status of your order is " + status + ". You should have received the package by " + date.strftime('%m/%d/%Y') + "."
-            elif status == 'Partially Shipped':
-                speech = "The status of your order is " + status + ". You should have received the package by " + date.strftime('%m/%d/%Y') + "."
-            elif status == 'Canceled':
-                speech = "The status of your order is " + status + ". Please reach out to the customer support for more details about the order."
-            elif status == 'Processing':
-                speech = "The status of your order is " + status + ". You should have received the package by " + date.strftime('%m/%d/%Y') + "."
-            else:
-                speech = status
+            status = "No match!!"
+        
+        speech = getOrderStatusResponse(status, date)
         #END Order Status Details
         
         #Order Item Variables
@@ -199,7 +228,7 @@ def makeWebhookResult(req):
                                         "order_number": ordernum,
                                         "currency": "USD",
                                         "payment_method": "Visa 2345",
-                                        "timestamp": "1428444852",
+                                        "timestamp": "1519420539",
                                         "address": {
                                             "street_1": "200 Heritage Drive",
                                             "street_2": "",
@@ -348,9 +377,9 @@ def makeWebhookResult(req):
         elif zipcode == '27217':
             ordernum = 'OLBW009566347'
         elif zipcode == '43081':
-            ordernum = 'OLBW022443272'
+            ordernum = 'OLBW025892656'
         else:
-            ordernum = 'OLBW022443272'
+            ordernum = 'OLBW025892656'
             zipcode = '43081'
             
         rq = requests.post("https://www.lanebryant.com/lanebryant/homepage/includes/order-response-html.jsp", data={'orderNum': ordernum, 'billingZip': zipcode, 'Action': 'fetchODDetails'})
@@ -469,7 +498,7 @@ def makeWebhookResult(req):
                                         "order_number": ordernum,
                                         "currency": "USD",
                                         "payment_method": "Visa 2345",
-                                        "timestamp": "1428444852",
+                                        "timestamp": "1519420539",
                                         "summary": {
                                             "subtotal": subtotal,
                                             "shipping_cost": shipping_cost,
@@ -499,7 +528,43 @@ def makeWebhookResult(req):
         # "contextOut": [],
         "source": "apiai-onlinestore-search"
     }
-        
+
+
+def getOrderJSON(rq):
+    cartJSON = rq.text[rq.text.find("cart-json")+35:rq.text.find("</script>", rq.text.find("cart-json"))]
+    return json.loads(cartJSON)
+
+def getOrderStatusResponse(status, date):
+    present = DateTime.now()
+    if date >= present:
+        if status == 'Shipped':
+            speech = "Your order is " + status + ". You should receive the package by " + date.strftime('%m/%d/%Y') + "."
+        elif status == 'Partially Shipped':
+            speech = "Your order is " + status + ". You should receive the package by " + date.strftime('%m/%d/%Y') + "."
+        elif status == 'Canceled':
+            speech = "Your order is " + status + ". Please reach out to the customer support for more details about the order."
+        elif status == 'Processing':
+            speech = "Your order is " + status + ". You should receive the package by " + date.strftime('%m/%d/%Y') + "."
+        else:
+            speech = "Sorry! I could not find that order. Please check the order number or zipcode and try again."
+    else:
+        if status == 'Shipped':
+            speech = "Your order has been " + status + ". You should have received the package by " + date.strftime('%m/%d/%Y') + "."
+        elif status == 'Partially Shipped':
+            speech = "Your order has been " + status + ". You should have received the package by " + date.strftime('%m/%d/%Y') + "."
+        elif status == 'Canceled':
+            speech = "Your order has been " + status + ". Please reach out to the customer support for more details about the order."
+        elif status == 'Processing':
+            speech = "Your order has been " + status + ". You should have received the package by " + date.strftime('%m/%d/%Y') + "."
+        else:
+            speech = "Sorry! I could not find that order. Please check the order number or zipcode and try again."    
+    return speech
+
+def google_search(search_term, key, cseid, **kwargs):
+    service = build("customsearch", "v1", developerKey=key)
+    res = service.cse().list(q=search_term, cx=cseid, **kwargs).execute()
+    print("Search Result: ", res)
+    return res['items']
 
 if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))
